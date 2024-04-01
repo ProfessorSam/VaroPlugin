@@ -12,6 +12,9 @@ import de.cuuky.varo.configuration.placeholder.varo.VaroPlayerMessagePlaceholder
 import de.cuuky.varo.entity.player.VaroPlayer;
 import de.cuuky.varo.entity.player.disconnect.VaroPlayerDisconnect;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
+import org.bukkit.entity.Player;
+import org.bukkit.util.Vector;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -59,7 +62,6 @@ public class MessagePlaceholderLoader {
         new VaroGeneralMessagePlaceholder("heart", -1, "Ersetzt durch ♥", () -> "♥");
         new VaroGeneralMessagePlaceholder("nextLine", -1, "Fuegt neue Zeile ein", () -> "\n");
         new VaroGeneralMessagePlaceholder("null", -1, "Ersetzt durch nichts", () -> "");
-
         for (ConfigSetting setting : ConfigSetting.values())
             new VaroGeneralMessagePlaceholder(setting.getPath(), 10, JavaUtils.getArgsToString(setting.getDescription(), " "), () -> String.valueOf(setting.getValue()).replace("&", "§"));
     }
@@ -134,5 +136,32 @@ public class MessagePlaceholderLoader {
         new VaroPlayerMessagePlaceholder("playerLocY", 1, "Ersetzt durch die Y-Koordinate des Spielers", (player) -> player.isOnline() ? String.valueOf(player.getPlayer().getLocation().getBlockY()) : "0");
         new VaroPlayerMessagePlaceholder("playerLocZ", 1, "Ersetzt durch die Z-Koordinate des Spielers", (player) -> player.isOnline() ? String.valueOf(player.getPlayer().getLocation().getBlockZ()) : "0");
         new VaroPlayerMessagePlaceholder("lpPrefix", 10, "Ersetzt durch den LuckPerms-Prefix des Spielers", PermissionUtils::getLuckPermsPrefix);
+        new VaroPlayerMessagePlaceholder("centerDirection", 1, "Center Direction relative to player", (player) -> {
+            Location center = Main.getVaroGame().getVaroWorldHandler().getMainWorld().getVaroBorder().getCenter();
+            return getArrow(player.getPlayer(), center);
+        });
     }
+
+   private String getArrow(Player player, Location destination){
+       Location position = player.getLocation();
+       Vector direction = destination.toVector().subtract(position.toVector());
+       Vector playerDirection = player.getLocation().getDirection();
+       direction.setY(0);
+       playerDirection.setY(0);
+       double angle = direction.angle(playerDirection);
+       double dotProduct = new Vector(0, 1, 0).dot(direction.crossProduct(playerDirection));
+       angle = (angle * Math.signum(dotProduct));
+       if (angle <= - 2.5 || angle >= 2.5){
+           return "↓";// Behind
+       }
+       else if (angle <= -0.5) {
+           return "←";// Left
+       }
+       else if(angle >= 0.5){
+           return "→";// Right
+       }
+       else {
+           return "↑";// Forward
+       }
+   }
 }

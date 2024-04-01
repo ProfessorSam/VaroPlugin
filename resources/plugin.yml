@@ -1,6 +1,6 @@
 name: ${name}
 author: Cuuky
-authors: [Korne127, LeStegii, Almighty-Satan]
+authors: [ProfessorSam, Korne127, LeStegii, Almighty-Satan]
 version: ${version}
 softdepend: [PlaceholderAPI, PermissionsEx, Multiverse-Core, WorldEdit]
 loadbefore: [CuukyFrameWork]
